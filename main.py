@@ -5,27 +5,39 @@ from player import Player
 FIELD_X = 500
 FIELD_Y = FIELD_X
 
-def main():
-    pygame.init()
+class Main():
+    def __init__(self):
+        self.fps = 60
+        self.clock = pygame.time.Clock()
+        self.player = Player('Player', 1)
+        self.delta_time = 0
 
-    surface = pygame.display.set_mode((FIELD_X, FIELD_Y))
+    def start(self):
+        pygame.init()
 
-    player = Player('Player', 1)
+        self.surface = pygame.display.set_mode((FIELD_X, FIELD_Y))
 
-    display = Display(surface)
-    display.add_entity(player)
+        self.display = Display(self.surface)
+        self.display.add_entity(self.player)
 
-    while True:
-        event = pygame.event.poll()
+        self.clock.tick(self.fps)
+        while True:
+            event = pygame.event.poll()
 
-        if event.type == pygame.QUIT:
-            break
+            if event.type == pygame.QUIT:
+                break
 
-        display.clear() # clear everything before redraw
-        display.draw() # redraw new scene
+            key_pressed = pygame.key.get_pressed()
 
-        pygame.display.flip()
+            self.display.handle_event(event, key_pressed, self.delta_time)
+            self.display.clear() # clear everything before redraw
+            self.display.draw() # redraw new scene
 
-    pygame.quit()
+            pygame.display.flip()
 
-main()
+            self.delta_time = self.clock.tick(self.fps) / 1000.0
+
+        pygame.quit()
+
+m = Main()
+m.start()
