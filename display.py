@@ -6,7 +6,7 @@ class Display():
         self.entities: [Entity] = []
 
     def clear(self):
-        self.surface.fill((0, 200, 255))
+        self.surface.fill((0, 0, 0))
 
     def draw(self):
         self.entities.sort(key=lambda x: x.heirarchy)
