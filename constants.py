@@ -1,0 +1,9 @@
+FPS = 60
+
+PLAYER_ID = 'Player'
+BACKGROUND_ID = 'Background'
+
+ENTITY_HEIRARCHY = [
+    BACKGROUND_ID,
+    PLAYER_ID
+]

@@ -1,5 +1,7 @@
 import pygame
 from entity import Entity, Direction
+from constants import BACKGROUND_ID
+from background import COLOR as BACKGROUND_COLOUR
 
 WIDTH = 10.0
 HEIGHT = WIDTH
@@ -7,10 +9,17 @@ MOVE_OFFSET_X = 100.0
 MOVE_OFFSET_Y = MOVE_OFFSET_X
 
 class Player(Entity):
-    def __init__(self, unique_id, heirarchy):
-        super().__init__(unique_id, heirarchy)
+    def __init__(self, unique_id):
+        super().__init__(unique_id)
         self.pos_x = 0.0
         self.pos_y = 0.0
+        self.display = None
+
+    def late_init(self):
+        self.background = self.display.get_entity(BACKGROUND_ID)
+
+        self.pos_x = self.background.pos_x - (WIDTH / 2)
+        self.pos_y = self.background.pos_y - (HEIGHT / 2)
 
     def handle_event(self, event, key_pressed, delta_time):
         if key_pressed[pygame.K_LEFT]:
@@ -25,16 +34,31 @@ class Player(Entity):
     def draw(self):
         pos = (self.pos_x, self.pos_y, WIDTH, HEIGHT)
 
-        self.surface.fill((255,255,255), pos)
+        self.surface.fill((255, 255, 255), pos)
+
+    def valid_pos(self, new_pos_x, new_pos_y):
+        pix_x = new_pos_x + (WIDTH / 2)
+        pix_y = new_pos_y + (HEIGHT / 2)
+
+        pix = self.surface.get_at((int(pix_x), int(pix_y)))[:3]
+
+        return not pix == BACKGROUND_COLOUR
 
     def move(self, direction, delta_time):
+        new_pos_x = self.pos_x
+        new_pos_y = self.pos_y
+
         if direction == Direction.LEFT:
-            self.pos_x -= (MOVE_OFFSET_X * delta_time)
+            new_pos_x -= (MOVE_OFFSET_X * delta_time)
         elif direction == Direction.RIGHT:
-            self.pos_x += (MOVE_OFFSET_X * delta_time)
+            new_pos_x += (MOVE_OFFSET_X * delta_time)
         elif direction == Direction.UP:
-            self.pos_y -= (MOVE_OFFSET_Y * delta_time)
+            new_pos_y -= (MOVE_OFFSET_Y * delta_time)
         elif direction == Direction.DOWN:
-            self.pos_y += (MOVE_OFFSET_Y * delta_time)
+            new_pos_y += (MOVE_OFFSET_Y * delta_time)
         else:
             raise Exception("Cannot move in this direction.")
+
+        if self.valid_pos(new_pos_x, new_pos_y):
+            self.pos_x = new_pos_x
+            self.pos_y = new_pos_y

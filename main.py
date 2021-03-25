@@ -1,24 +1,28 @@
 import pygame
 from display import Display
 from player import Player
+from background import Background
+from constants import *
 
-FIELD_X = 500
-FIELD_Y = FIELD_X
+WINDOW_X = 500
+WINDOW_Y = WINDOW_X
 
 class Main():
     def __init__(self):
-        self.fps = 60
+        self.fps = FPS
         self.clock = pygame.time.Clock()
-        self.player = Player('Player', 1)
         self.delta_time = 0
+
+        self.player = Player(PLAYER_ID)
+        self.background = Background(BACKGROUND_ID)
 
     def start(self):
         pygame.init()
 
-        self.surface = pygame.display.set_mode((FIELD_X, FIELD_Y))
+        self.surface = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
 
         self.display = Display(self.surface)
-        self.display.add_entity(self.player)
+        self.display.add_entity(self.player, self.background)
 
         self.clock.tick(self.fps)
         while True:
