@@ -7,9 +7,7 @@ COLOR = (100, 100, 100)
 
 class Background(Entity):
     def __init__(self, unique_id):
-        super().__init__(unique_id)
-        self.pos_x = 0.0
-        self.pos_y = 0.0
+        super().__init__(unique_id, width=WIDTH, height=HEIGHT, pos_x=0.0, pos_y=0.0)
 
     def late_init(self):
         display_width, display_height = self.surface.get_size()

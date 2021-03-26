@@ -1,3 +1,4 @@
+import pygame
 from entity import Entity
 
 class Display():
@@ -10,7 +11,7 @@ class Display():
         self.surface.fill((0, 0, 0))
 
     def draw(self):
-        self.entities.sort(key=lambda x: x.heirarchy)
+        self.sort_entities(self.entities)
 
         for entity in self.entities:
             entity.draw()
@@ -38,4 +39,4 @@ class Display():
             self.entity_dict[entity.unique_id] = entity
 
     def get_entity(self, identifier):
-        return self.entity_dict.get(identifier, None)
+        return self.entity_dict[identifier]

@@ -7,12 +7,11 @@ WIDTH = 10.0
 HEIGHT = WIDTH
 MOVE_OFFSET_X = 100.0
 MOVE_OFFSET_Y = MOVE_OFFSET_X
+COLOR = (255, 255, 255)
 
 class Player(Entity):
     def __init__(self, unique_id):
-        super().__init__(unique_id)
-        self.pos_x = 0.0
-        self.pos_y = 0.0
+        super().__init__(unique_id, width=WIDTH, height=HEIGHT, pos_x=0.0, pos_y=0.0)
         self.display = None
 
     def late_init(self):
@@ -34,7 +33,7 @@ class Player(Entity):
     def draw(self):
         pos = (self.pos_x, self.pos_y, WIDTH, HEIGHT)
 
-        self.surface.fill((255, 255, 255), pos)
+        self.surface.fill(COLOR, pos)
 
     def valid_pos(self, new_pos_x, new_pos_y):
         pix_x = new_pos_x + (WIDTH / 2)
