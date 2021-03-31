@@ -33,9 +33,9 @@ class Main():
 
             key_pressed = pygame.key.get_pressed()
 
-            self.display.handle_event(event, key_pressed, self.delta_time)
+            self.display.handle_event(event, key_pressed)
             self.display.clear() # clear everything before redraw
-            self.display.draw() # redraw new scene
+            self.display.draw(self.delta_time) # redraw new scene
 
             pygame.display.flip()
 

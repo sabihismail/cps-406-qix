@@ -10,17 +10,18 @@ class Display():
     def clear(self):
         self.surface.fill((0, 0, 0))
 
-    def draw(self):
+    def draw(self, delta_time):
         self.sort_entities(self.entities)
 
         for entity in self.entities:
+            entity.pre_draw(delta_time)
             entity.draw()
 
-    def handle_event(self, event, key_pressed, delta_time):
+    def handle_event(self, event, key_pressed):
         self.sort_entities(self.entities)
 
         for entity in self.entities:
-            entity.handle_event(event, key_pressed, delta_time)
+            entity.handle_event(event, key_pressed)
 
     def sort_entities(self, lst):
         lst.sort(key=lambda x: x.heirarchy)

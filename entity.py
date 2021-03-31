@@ -21,7 +21,10 @@ class Entity():
     def late_init(self):
         pass
 
-    def handle_event(self, event, key_pressed, delta_time):
+    def handle_event(self, event, key_pressed):
+        pass
+
+    def pre_draw(self, delta_time):
         pass
 
     def draw(self):
