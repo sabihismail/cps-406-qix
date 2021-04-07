@@ -4,7 +4,7 @@ from player import Player
 from background import Background
 from constants import *
 
-WINDOW_X = 500
+WINDOW_X = 1000
 WINDOW_Y = WINDOW_X
 
 class Main():
