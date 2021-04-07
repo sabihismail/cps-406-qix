@@ -1,7 +1,9 @@
 import pygame
+from shapely.geometry import Polygon, LineString
 from entity import Entity, Direction
-from draw_util import get_lines_by_rect, to_line_list, to_vertices_list, lines_to_dict, vertices_to_dict
+from draw_util import get_lines_by_rect, to_line_list, to_vertices_list, lines_to_dict, unique_vertices_to_dict
 from collision_util import is_point_on_line, is_line_on_line
+from math_util import split_polygon
 
 WIDTH = 600.0
 HEIGHT = WIDTH
@@ -24,7 +26,9 @@ class Background(Entity):
         self.current_trail_start = None
         self.current_trail_end = None
         self.active_trail = []
+        self.active_trail_polygon = None
         self.temp_trail = []
+        self.off_perimeter = False
 
     def late_init(self):
         display_width, display_height = self.surface.get_size()
@@ -34,7 +38,15 @@ class Background(Entity):
         
         self.bounds = pygame.Rect(self.pos_x, self.pos_y, WIDTH, HEIGHT)
 
-        self.active_trail = to_vertices_list(get_lines_by_rect(self.bounds))
+        trail = to_vertices_list(get_lines_by_rect(self.bounds))
+        self.set_active_trail(trail)
+
+    def set_active_trail(self, trail, polygon=None):
+        self.active_trail = trail
+        if not polygon:
+            self.active_trail_polygon = Polygon(trail)
+        else:
+            self.active_trail_polygon = polygon
 
     def draw_polygon(self, vertices):
         pygame.draw.polygon(self.surface, INSIDE_COLOR, vertices, width=0)
@@ -71,12 +83,22 @@ class Background(Entity):
 
         return (ret_x, ret_y)
 
-    def on_perimeter(self):
-        if not self.current_trail_start or not self.current_trail_end:
-            return True
+    def line_on_perimeter(self, start, end):
+        if not start or not end:
+            return False
 
         for line in to_line_list(self.active_trail):
             if is_line_on_line(line, (self.current_trail_start, self.current_trail_end)):
+                return True
+
+        return False
+
+    def point_on_perimeter(self, point):
+        if not point:
+            return False
+
+        for line in to_line_list(self.active_trail):
+            if is_point_on_line(line[0], line[1], point):
                 return True
 
         return False
@@ -85,58 +107,52 @@ class Background(Entity):
         x = int(x)
         y = int(y)
 
-        if direction != self.last_trail_direction:
-            if self.current_trail_end and not self.on_perimeter():
+        print((self.current_trail_start, self.current_trail_end))
+
+        point = (x, y)
+        if not self.point_on_perimeter(point):
+            self.off_perimeter = True
+
+            if direction != self.last_trail_direction and not Direction.opposite(self.last_trail_direction, direction):
+                if self.current_trail_end:
+                    self.temp_trail.append((self.current_trail_start, self.current_trail_end))
+                    self.current_trail_start = self.current_trail_end or point
+
+                self.current_trail_end = point
+                self.last_trail_direction = direction
+            else:
+                self.current_trail_end = (x, y)
+        else:
+            if self.current_trail_start and self.off_perimeter:
+                self.current_trail_end = point
                 self.temp_trail.append((self.current_trail_start, self.current_trail_end))
 
-            self.current_trail_start = self.current_trail_end or (x, y)
-            self.current_trail_end = (x, y)
-            self.last_trail_direction = direction
-        else:
-            self.current_trail_end = (x, y)
+                self.check_connection()
 
-        self.check_connection()
+                self.off_perimeter = False
+            else:
+                self.current_trail_start = point
 
     def check_connection(self):
+        if not self.current_trail_start or not self.current_trail_end:
+            return
+
         if self.current_trail_end == self.current_trail_start:
             return
 
-        for line in to_line_list(self.active_trail):
-            if is_point_on_line(line[0], line[1], self.current_trail_start):
-                continue
+        self.add_to_active_trails()
 
-            if is_point_on_line(line[0], line[1], self.current_trail_end):
-                self.add_to_active_trails(line)
-                return
-
-    def add_to_active_trails(self, start_line):
+    def add_to_active_trails(self):
         self.temp_trail.append((self.current_trail_start, self.current_trail_end))
 
-        end_line = None
-        for line in to_line_list(self.active_trail):
-            if is_point_on_line(line[0], line[1], self.current_trail_end):
-                end_line = line
-                break
+        temp_trail_vertices = to_vertices_list(self.temp_trail)
+        polygons = split_polygon(self.active_trail_polygon, temp_trail_vertices)
+        polygons.sort(key=lambda x: x[1].area)
 
-        vertices = to_vertices_list(self.temp_trail)
-        vertices = vertices[:-1]
-        vertices.insert(0, start_line[0])
-        vertices.append(end_line[1])
+        small_polygon = polygons[0]
+        large_polygon = polygons[1]
 
-        d = vertices_to_dict(self.active_trail)
-        print(self.temp_trail)
-        print(vertices)
-        print(d)
-        while vertices[0] != vertices[len(vertices) - 1]:
-            last_vertex = vertices[len(vertices) - 1]
-
-            possible_next_vertices = d[last_vertex][::-1]
-
-            best_vertex = self.find_best_vertex(vertices, possible_next_vertices)
-
-            vertices.append(best_vertex)
-
-        self.active_trail = vertices
+        self.set_active_trail(large_polygon[0], large_polygon[1])
         self.temp_trail = []
 
         self.current_trail_start = None

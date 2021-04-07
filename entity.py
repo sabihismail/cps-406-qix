@@ -38,3 +38,14 @@ class Direction(Enum):
     UP = 1
     RIGHT = 2
     DOWN = 3
+
+    @staticmethod
+    def opposite(old, new):
+        d = {
+            Direction.LEFT: Direction.RIGHT,
+            Direction.RIGHT: Direction.LEFT,
+            Direction.UP: Direction.DOWN,
+            Direction.DOWN: Direction.UP
+        }
+
+        return d[new] == old

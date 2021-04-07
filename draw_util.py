@@ -32,7 +32,6 @@ def get_lines_by_rect(bounds):
 def to_vertices_list(lines):
     vertices = [a[0] for a in lines]
     vertices.append(lines[len(lines) - 1][1])
-    vertices.append(lines[0][0])
 
     return vertices
 
@@ -67,5 +66,16 @@ def vertices_to_dict(vertices):
 
         d[line[0]] = a
         d[line[1]] = b
+
+    return d
+
+def unique_vertices_to_dict(vertices):
+    d = vertices_to_dict(vertices)
+
+    for key, value in d.items():
+        lst = [x for x in value if x != key]
+        lst = list(set(lst))
+
+        d[key] = lst
 
     return d
