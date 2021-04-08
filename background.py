@@ -3,7 +3,7 @@ from shapely.geometry import Point, Polygon, LineString
 from entity import Entity, Direction
 from draw_util import get_lines_by_rect, to_line_list, to_vertices_list, lines_to_dict, unique_vertices_to_dict
 from collision_util import is_point_on_line, is_line_on_line
-from math_util import split_polygon
+from math_util import split_polygon, point_in_polygon, nearest_point_to_polygon
 from math import trunc
 
 WIDTH = 600.0
@@ -69,19 +69,7 @@ class Background(Entity):
     def leaves_play_area(self, x, y, x2, y2):
         ret_x = x
         ret_y = y
-        pointer = Point(x,y)
-
-        if x < self.bounds.x:
-            ret_x = self.bounds.x
-
-        if y < self.bounds.y:
-            ret_y = self.bounds.y
-
-        if x > self.bounds.x + self.bounds.width:
-            ret_x = self.bounds.x + self.bounds.width
-
-        if y > self.bounds.x + self.bounds.height:
-            ret_y = self.bounds.y + self.bounds.height
+        '''pointer = Point(x,y)
 
         for line in to_line_list(self.active_trail):
             if is_point_on_line(line[0], line[1], (trunc(x2), trunc(y2))):
@@ -106,7 +94,14 @@ class Background(Entity):
                     if x < brah and not pointer.intersects(self.active_trail_polygon):
                         ret_x = brah
                     if x > bruh and not pointer.intersects(self.active_trail_polygon):
-                        ret_x = bruh
+                        ret_x = bruh'''
+
+        pointer = Point(x, y)
+        if not point_in_polygon(self.active_trail_polygon, pointer):
+            point = nearest_point_to_polygon(self.active_trail_polygon, pointer)
+
+            ret_x, ret_y = point[0], point[1]
+
         return (ret_x, ret_y)
 
     def line_on_perimeter(self, start, end):
@@ -130,11 +125,6 @@ class Background(Entity):
         return False
 
     def add_trail(self, x, y, direction):
-        x = int(x)
-        y = int(y)
-
-        print((self.current_trail_start, self.current_trail_end))
-
         point = (x, y)
         if not self.point_on_perimeter(point):
             self.off_perimeter = True

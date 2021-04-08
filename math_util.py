@@ -1,5 +1,5 @@
 from shapely.geometry import Polygon, LineString
-from shapely.ops import split
+from shapely.ops import split, nearest_points
 
 def split_polygon(polygon, line_lst):
     line = LineString(line_lst)
@@ -8,8 +8,16 @@ def split_polygon(polygon, line_lst):
 
     result = []
     for element in geometry_collection:
-        coords = [(int(a[0]), int(a[1])) for a in list(element.exterior.coords)]
+        coords = [(a[0], a[1]) for a in list(element.exterior.coords)]
 
         result.append((coords, element))
 
     return result
+
+def point_in_polygon(polygon, point):
+    return polygon.contains(point)
+
+def nearest_point_to_polygon(polygon, point):
+    p1, p2 = nearest_points(polygon, point)
+
+    return (p1.x, p1.y)
