@@ -1,20 +1,22 @@
 import pygame
 from base.entity import Entity, Direction
 from util.constants import BACKGROUND_ID
-from .background import OUTLINE_COLOR as BACKGROUND_COLOUR
+from .background import OUTLINE_COLOUR as BACKGROUND_COLOUR
 
 WIDTH = 20.0
 HEIGHT = WIDTH
 MOVE_OFFSET_X = 200.0
 MOVE_OFFSET_Y = MOVE_OFFSET_X
-COLOR = (255, 0, 0)
+COLOUR = (255, 0, 0)
 
 class Player(Entity):
     def __init__(self, unique_id):
         super().__init__(unique_id, width=WIDTH, height=HEIGHT, pos_x=0.0, pos_y=0.0)
+        self.pos_x = 0.0
+        self.pos_y = 0.0
+        self.bounds = None
         self.background = None
         self.display = None
-        self.current_colour = None
         self.blocked = {
             Direction.LEFT: None,
             Direction.UP: None,
@@ -28,7 +30,9 @@ class Player(Entity):
         self.pos_x = self.background.pos_x
         self.pos_y = self.background.pos_y
 
-    def handle_event(self, event, key_pressed):
+        self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
+
+    def handle_event(self, _, key_pressed):
         if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_a]:
             self.move(Direction.LEFT)
         elif key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d]:
@@ -45,8 +49,7 @@ class Player(Entity):
         self.blocked[Direction.DOWN] = self.valid_pos(self.pos_x, self.pos_y + (MOVE_OFFSET_Y * delta_time), self.pos_x, self.pos_y)
 
     def draw(self):
-        pos = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
-        self.surface.fill(COLOR, pos)
+        self.surface.fill(COLOUR, self.bounds)
 
     def valid_pos(self, new_pos_x, new_pos_y, old_pos_x, old_pos_y):
         pos_to_save = self.background.leaves_play_area(new_pos_x, new_pos_y, old_pos_x, old_pos_y)
@@ -59,5 +62,7 @@ class Player(Entity):
 
             self.pos_x = val[0]
             self.pos_y = val[1]
+        
+            self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
 
             self.background.add_trail(self.pos_x, self.pos_y, direction)

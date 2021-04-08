@@ -2,8 +2,10 @@ FPS = 60
 
 PLAYER_ID = 'Player'
 BACKGROUND_ID = 'Background'
+QIX_ID = 'Qix'
 
 ENTITY_HEIRARCHY = [
     BACKGROUND_ID,
-    PLAYER_ID
+    PLAYER_ID,
+    QIX_ID
 ]

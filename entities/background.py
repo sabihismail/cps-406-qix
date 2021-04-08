@@ -9,24 +9,29 @@ from math import trunc
 WIDTH = 600.0
 HEIGHT = WIDTH
 FULL_BACKGROUND_COLOUR = (20, 20, 20)
-INSIDE_COLOR = (150, 150, 150)
-OUTLINE_COLOR = (100, 100, 100)
+INSIDE_COLOUR = (150, 150, 150)
+OUTLINE_COLOUR = (100, 100, 100)
 OUTLINE_WIDTH = 1
-TRAIL_COLOR = (0, 255, 0)
+TRAIL_COLOUR = (0, 255, 0)
 PERCENTAGE_THRESHOLD = 60.0
 
 class Background(Entity):
     def __init__(self, unique_id):
         super().__init__(unique_id, width=WIDTH, height=HEIGHT, pos_x=0.0, pos_y=0.0)
+        self.pos_x = 0.0
+        self.pos_y = 0.0
         self.bounds = None
+        self.percentage = 0.0
+
+        self.base_play_area = None
+        self.active_trail = []
+        self.active_trail_polygon = None
+        
+        self.off_perimeter = False
         self.last_trail_direction = None
         self.current_trail_start = None
         self.current_trail_end = None
-        self.active_trail = []
-        self.active_trail_polygon = None
         self.temp_trail = []
-        self.base_play_area = None
-        self.off_perimeter = False
 
     def late_init(self):
         display_width, display_height = self.surface.get_size()
@@ -50,10 +55,10 @@ class Background(Entity):
             self.base_play_area = Polygon(trail)
 
     def draw_polygon(self, vertices):
-        pygame.draw.polygon(self.surface, INSIDE_COLOR, vertices, width=0)
+        pygame.draw.polygon(self.surface, INSIDE_COLOUR, vertices, width=0)
 
         for line in to_line_list(vertices):
-            pygame.draw.line(self.surface, TRAIL_COLOR, line[0], line[1], width=1)
+            pygame.draw.line(self.surface, TRAIL_COLOUR, line[0], line[1], width=1)
 
     def draw(self):
         self.surface.fill(FULL_BACKGROUND_COLOUR)
@@ -61,10 +66,10 @@ class Background(Entity):
         self.draw_polygon(self.active_trail)
 
         for trail in self.temp_trail:
-            pygame.draw.line(self.surface, TRAIL_COLOR, trail[0], trail[1], width=1)
+            pygame.draw.line(self.surface, TRAIL_COLOUR, trail[0], trail[1], width=1)
         
         if self.current_trail_start and self.current_trail_end:
-            pygame.draw.line(self.surface, TRAIL_COLOR, self.current_trail_start, self.current_trail_end, width=1)
+            pygame.draw.line(self.surface, TRAIL_COLOUR, self.current_trail_start, self.current_trail_end, width=1)
 
     def leaves_play_area(self, x, y, x2, y2):
         ret_x = x
@@ -171,15 +176,17 @@ class Background(Entity):
             large_polygon = polygons[1]
         elif len(polygons) == 1:
             large_polygon = polygons[0]
+            print("len(poly) = 1")
             print(polygons)
         else:
+            print("len(poly) = else")
             passable = False
             print(polygons)
             
         if passable:
-            percentage = compare_polygon_area(self.base_play_area, self.active_trail_polygon)
+            self.percentage = compare_polygon_area(self.base_play_area, self.active_trail_polygon)
 
-            if percentage > PERCENTAGE_THRESHOLD:
+            if self.percentage > PERCENTAGE_THRESHOLD:
                 self.round_win()
 
             self.set_active_trail(large_polygon[0], large_polygon[1])

@@ -16,6 +16,7 @@ class Main():
 
         self.player = Player(PLAYER_ID)
         self.background = Background(BACKGROUND_ID)
+        self.qix = Qix(QIX_ID)
 
     def start(self):
         pygame.init()
@@ -23,7 +24,7 @@ class Main():
         self.surface = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
 
         self.display = Display(self.surface)
-        self.display.add_entity(self.player, self.background)
+        self.display.add_entity(self.player, self.background, self.qix)
 
         self.clock.tick(self.fps)
         while True:
