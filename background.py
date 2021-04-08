@@ -1,9 +1,10 @@
 import pygame
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import Point, Polygon, LineString
 from entity import Entity, Direction
 from draw_util import get_lines_by_rect, to_line_list, to_vertices_list, lines_to_dict, unique_vertices_to_dict
 from collision_util import is_point_on_line, is_line_on_line
 from math_util import split_polygon
+from math import trunc
 
 WIDTH = 600.0
 HEIGHT = WIDTH
@@ -65,9 +66,10 @@ class Background(Entity):
         if self.current_trail_start and self.current_trail_end:
             pygame.draw.line(self.surface, TRAIL_COLOR, self.current_trail_start, self.current_trail_end, width=1)
 
-    def leaves_play_area(self, x, y):
+    def leaves_play_area(self, x, y, x2, y2):
         ret_x = x
         ret_y = y
+        pointer = Point(x,y)
 
         if x < self.bounds.x:
             ret_x = self.bounds.x
@@ -81,6 +83,30 @@ class Background(Entity):
         if y > self.bounds.x + self.bounds.height:
             ret_y = self.bounds.y + self.bounds.height
 
+        for line in to_line_list(self.active_trail):
+            if is_point_on_line(line[0], line[1], (trunc(x2), trunc(y2))):
+                if line[0][0] == line[1][0]:
+                    bruh = max(line[0][1],line[1][1])
+                    brah = min(line[0][1],line[1][1])
+                    if x < line[0][0] and not pointer.intersects(self.active_trail_polygon):
+                        ret_x = line[0][0]
+                    if x > line[0][0] and not pointer.intersects(self.active_trail_polygon):
+                        ret_x = line[0][0]
+                    if y < brah and not pointer.intersects(self.active_trail_polygon):
+                        ret_y = brah
+                    if y > bruh and not pointer.intersects(self.active_trail_polygon):
+                        ret_y = bruh
+                if line[0][1] == line[1][1]:
+                    bruh = max(line[0][0],line[1][0])
+                    brah = min(line[0][0],line[1][0])
+                    if y < line[0][1] and not pointer.intersects(self.active_trail_polygon):
+                        ret_y = line[0][1]
+                    if y > line[0][1] and not pointer.intersects(self.active_trail_polygon):
+                        ret_y = line[0][1]
+                    if x < brah and not pointer.intersects(self.active_trail_polygon):
+                        ret_x = brah
+                    if x > bruh and not pointer.intersects(self.active_trail_polygon):
+                        ret_x = bruh
         return (ret_x, ret_y)
 
     def line_on_perimeter(self, start, end):

@@ -39,17 +39,17 @@ class Player(Entity):
             self.move(Direction.DOWN)
 
     def pre_draw(self, delta_time):
-        self.blocked[Direction.RIGHT] = self.valid_pos(self.pos_x + (MOVE_OFFSET_X * delta_time), self.pos_y)
-        self.blocked[Direction.LEFT] = self.valid_pos(self.pos_x - (MOVE_OFFSET_X * delta_time), self.pos_y)
-        self.blocked[Direction.UP] = self.valid_pos(self.pos_x, self.pos_y - (MOVE_OFFSET_Y * delta_time))
-        self.blocked[Direction.DOWN] = self.valid_pos(self.pos_x, self.pos_y + (MOVE_OFFSET_Y * delta_time))
+        self.blocked[Direction.RIGHT] = self.valid_pos(self.pos_x + (MOVE_OFFSET_X * delta_time), self.pos_y, self.pos_x, self.pos_y)
+        self.blocked[Direction.LEFT] = self.valid_pos(self.pos_x - (MOVE_OFFSET_X * delta_time), self.pos_y, self.pos_x, self.pos_y)
+        self.blocked[Direction.UP] = self.valid_pos(self.pos_x, self.pos_y - (MOVE_OFFSET_Y * delta_time), self.pos_x, self.pos_y)
+        self.blocked[Direction.DOWN] = self.valid_pos(self.pos_x, self.pos_y + (MOVE_OFFSET_Y * delta_time), self.pos_x, self.pos_y)
 
     def draw(self):
         pos = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
         self.surface.fill(COLOR, pos)
 
-    def valid_pos(self, new_pos_x, new_pos_y):
-        pos_to_save = self.background.leaves_play_area(new_pos_x, new_pos_y)
+    def valid_pos(self, new_pos_x, new_pos_y, old_pos_x, old_pos_y):
+        pos_to_save = self.background.leaves_play_area(new_pos_x, new_pos_y, old_pos_x, old_pos_y)
 
         
 
