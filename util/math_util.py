@@ -21,3 +21,11 @@ def nearest_point_to_polygon(polygon, point):
     p1, p2 = nearest_points(polygon, point)
 
     return (p1.x, p1.y)
+
+def compare_polygon_area(original, current):
+    if not original or not current:
+        return 0.0
+
+    percentage = (original.area - current.area) / original.area
+
+    return percentage

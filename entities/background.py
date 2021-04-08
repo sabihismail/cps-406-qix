@@ -1,9 +1,9 @@
 import pygame
-from shapely.geometry import Point, Polygon, LineString
-from entity import Entity, Direction
-from draw_util import get_lines_by_rect, to_line_list, to_vertices_list, lines_to_dict, unique_vertices_to_dict
-from collision_util import is_point_on_line, is_line_on_line
-from math_util import split_polygon, point_in_polygon, nearest_point_to_polygon
+from shapely.geometry import Point, Polygon
+from base.entity import Entity, Direction
+from util.draw_util import get_lines_by_rect, to_line_list, to_vertices_list
+from util.collision_util import is_point_on_line, is_line_on_line
+from util.math_util import split_polygon, point_in_polygon, nearest_point_to_polygon, compare_polygon_area
 from math import trunc
 
 WIDTH = 600.0
@@ -13,11 +13,7 @@ INSIDE_COLOR = (150, 150, 150)
 OUTLINE_COLOR = (100, 100, 100)
 OUTLINE_WIDTH = 1
 TRAIL_COLOR = (0, 255, 0)
-
-class ListNode():
-    def __init__(self, x):
-        self.val = x
-        self.next = None
+PERCENTAGE_THRESHOLD = 60.0
 
 class Background(Entity):
     def __init__(self, unique_id):
@@ -29,6 +25,7 @@ class Background(Entity):
         self.active_trail = []
         self.active_trail_polygon = None
         self.temp_trail = []
+        self.base_play_area = None
         self.off_perimeter = False
 
     def late_init(self):
@@ -48,6 +45,9 @@ class Background(Entity):
             self.active_trail_polygon = Polygon(trail)
         else:
             self.active_trail_polygon = polygon
+
+        if not self.base_play_area:
+            self.base_play_area = Polygon(trail)
 
     def draw_polygon(self, vertices):
         pygame.draw.polygon(self.surface, INSIDE_COLOR, vertices, width=0)
@@ -143,13 +143,13 @@ class Background(Entity):
                 self.current_trail_end = point
                 self.temp_trail.append((self.current_trail_start, self.current_trail_end))
 
-                self.check_connection()
+                self.check_if_on_perimeter()
 
                 self.off_perimeter = False
             else:
                 self.current_trail_start = point
 
-    def check_connection(self):
+    def check_if_on_perimeter(self):
         if not self.current_trail_start or not self.current_trail_end:
             return
 
@@ -165,19 +165,29 @@ class Background(Entity):
         polygons = split_polygon(self.active_trail_polygon, temp_trail_vertices)
         polygons.sort(key=lambda x: x[1].area)
 
-        small_polygon = polygons[0]
-        large_polygon = polygons[1]
-
-        self.set_active_trail(large_polygon[0], large_polygon[1])
-        self.temp_trail = []
-
-        self.current_trail_start = None
-        self.current_trail_end = None
-        self.last_trail_direction = None
-
-    def find_best_vertex(self, lst, next_vertices):
-        for vertex in next_vertices:
-            tmp = list(lst)
+        passable = True # just handle the bug poorly rather than crash the entire game
+        if len(polygons) == 2:
+            small_polygon = polygons[0]
+            large_polygon = polygons[1]
+        elif len(polygons) == 1:
+            large_polygon = polygons[0]
+            print(polygons)
+        else:
+            passable = False
+            print(polygons)
             
-            if tmp.count(vertex) <= 1:
-                return vertex
+        if passable:
+            percentage = compare_polygon_area(self.base_play_area, self.active_trail_polygon)
+
+            if percentage > PERCENTAGE_THRESHOLD:
+                self.round_win()
+
+            self.set_active_trail(large_polygon[0], large_polygon[1])
+            self.temp_trail = []
+
+            self.current_trail_start = None
+            self.current_trail_end = None
+            self.last_trail_direction = None
+
+    def round_win(self):
+        pass

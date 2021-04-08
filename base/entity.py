@@ -1,5 +1,5 @@
 from enum import Enum
-from constants import ENTITY_HEIRARCHY
+from util.constants import ENTITY_HEIRARCHY
 
 class Entity():
     def __init__(self, unique_id, width=0, height=0, pos_x=0.0, pos_y=0.0):

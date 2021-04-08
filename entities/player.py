@@ -1,7 +1,7 @@
 import pygame
-from entity import Entity, Direction
-from constants import BACKGROUND_ID
-from background import OUTLINE_COLOR as BACKGROUND_COLOUR
+from base.entity import Entity, Direction
+from util.constants import BACKGROUND_ID
+from .background import OUTLINE_COLOR as BACKGROUND_COLOUR
 
 WIDTH = 20.0
 HEIGHT = WIDTH
@@ -50,8 +50,6 @@ class Player(Entity):
 
     def valid_pos(self, new_pos_x, new_pos_y, old_pos_x, old_pos_y):
         pos_to_save = self.background.leaves_play_area(new_pos_x, new_pos_y, old_pos_x, old_pos_y)
-
-        
 
         return pos_to_save
 

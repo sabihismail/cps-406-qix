@@ -1,5 +1,5 @@
 import pygame
-from entity import Entity
+from base.entity import Entity
 
 class Display():
     def __init__(self, surface):

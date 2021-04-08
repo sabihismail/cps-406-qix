@@ -1,8 +1,9 @@
 import pygame
-from display import Display
-from player import Player
-from background import Background
-from constants import *
+from engine.display import Display
+from entities.player import Player
+from entities.background import Background
+from entities.qix import Qix
+from util.constants import *
 
 WINDOW_X = 1000
 WINDOW_Y = WINDOW_X
