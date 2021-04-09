@@ -2,9 +2,7 @@ import pygame
 from shapely.geometry import Point, Polygon
 from base.entity import Entity, Direction
 from util.draw_util import get_lines_by_rect, to_line_list, to_vertices_list
-from util.collision_util import is_point_on_line, is_line_on_line
-from util.math_util import split_polygon, point_in_polygon, nearest_point_to_polygon, compare_polygon_area
-from math import trunc
+from util.math_util import split_polygon, point_in_polygon, nearest_point_to_polygon, compare_polygon_area, is_point_on_line, is_line_on_line, points_are_equal, closest_vertex_polygon
 
 WIDTH = 600.0
 HEIGHT = WIDTH
@@ -13,7 +11,6 @@ INSIDE_COLOUR = (150, 150, 150)
 OUTLINE_COLOUR = (100, 100, 100)
 OUTLINE_WIDTH = 1
 TRAIL_COLOUR = (0, 255, 0)
-PERCENTAGE_THRESHOLD = 60.0
 
 class Background(Entity):
     def __init__(self, unique_id):
@@ -71,7 +68,7 @@ class Background(Entity):
         if self.current_trail_start and self.current_trail_end:
             pygame.draw.line(self.surface, TRAIL_COLOUR, self.current_trail_start, self.current_trail_end, width=1)
 
-    def leaves_play_area(self, x, y, x2, y2):
+    def leaves_play_area(self, x, y):
         ret_x = x
         ret_y = y
         '''pointer = Point(x,y)
@@ -109,6 +106,18 @@ class Background(Entity):
 
         return (ret_x, ret_y)
 
+    def get_sparc_location(self, x, y):
+        if not self.point_on_perimeter((x, y)):
+            return None
+
+        pointer = Point(x, y)
+        if not point_in_polygon(self.active_trail_polygon, pointer):
+            point = nearest_point_to_polygon(self.active_trail_polygon, pointer)
+
+            ret_x, ret_y = point[0], point[1]
+        
+        return (ret_x, ret_y)
+
     def line_on_perimeter(self, start, end):
         if not start or not end:
             return False
@@ -129,12 +138,15 @@ class Background(Entity):
 
         return False
 
+    def get_closest_vertex(self, point):
+        return closest_vertex_polygon(self.active_trail_polygon, point)
+
     def add_trail(self, x, y, direction):
         point = (x, y)
         if not self.point_on_perimeter(point):
             self.off_perimeter = True
 
-            if direction != self.last_trail_direction and not Direction.opposite(self.last_trail_direction, direction):
+            if direction != self.last_trail_direction and not Direction.is_opposite(self.last_trail_direction, direction):
                 if self.current_trail_end:
                     self.temp_trail.append((self.current_trail_start, self.current_trail_end))
                     self.current_trail_start = self.current_trail_end or point
@@ -152,6 +164,8 @@ class Background(Entity):
 
                 self.off_perimeter = False
             else:
+                #safe_start_point = nearest_point_to_polygon(self.active_trail_polygon, Point(point))
+                #self.current_trail_start = safe_start_point
                 self.current_trail_start = point
 
     def check_if_on_perimeter(self):
@@ -164,6 +178,9 @@ class Background(Entity):
         self.add_to_active_trails()
 
     def add_to_active_trails(self):
+        #safe_end_point = nearest_point_to_polygon(self.active_trail_polygon, Point(self.current_trail_end))
+        #self.current_trail_end = safe_end_point
+
         self.temp_trail.append((self.current_trail_start, self.current_trail_end))
 
         temp_trail_vertices = to_vertices_list(self.temp_trail)
@@ -177,17 +194,18 @@ class Background(Entity):
         elif len(polygons) == 1:
             large_polygon = polygons[0]
             print("len(poly) = 1")
+            print(temp_trail_vertices)
+            print(self.active_trail)
             print(polygons)
         else:
-            print("len(poly) = else")
             passable = False
+            print("len(poly) = else")
+            print(temp_trail_vertices)
+            print(self.active_trail)
             print(polygons)
             
         if passable:
             self.percentage = compare_polygon_area(self.base_play_area, self.active_trail_polygon)
-
-            if self.percentage > PERCENTAGE_THRESHOLD:
-                self.round_win()
 
             self.set_active_trail(large_polygon[0], large_polygon[1])
             self.temp_trail = []
@@ -195,6 +213,3 @@ class Background(Entity):
             self.current_trail_start = None
             self.current_trail_end = None
             self.last_trail_direction = None
-
-    def round_win(self):
-        pass

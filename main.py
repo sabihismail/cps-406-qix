@@ -1,9 +1,6 @@
 import pygame
-from engine.display import Display
-from entities.player import Player
-from entities.background import Background
-from entities.qix import Qix
-from util.constants import *
+from engine.level_manager import LevelManager
+from util.constants import FPS
 
 WINDOW_X = 1000
 WINDOW_Y = WINDOW_X
@@ -14,17 +11,14 @@ class Main():
         self.clock = pygame.time.Clock()
         self.delta_time = 0
 
-        self.player = Player(PLAYER_ID)
-        self.background = Background(BACKGROUND_ID)
-        self.qix = Qix(QIX_ID)
+        self.surface = None
+        self.level_manager = None
 
     def start(self):
         pygame.init()
 
         self.surface = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
-
-        self.display = Display(self.surface)
-        self.display.add_entity(self.player, self.background, self.qix)
+        self.level_manager = LevelManager(self.surface)
 
         self.clock.tick(self.fps)
         while True:
@@ -35,9 +29,7 @@ class Main():
 
             key_pressed = pygame.key.get_pressed()
 
-            self.display.handle_event(event, key_pressed)
-            self.display.clear() # clear everything before redraw
-            self.display.draw(self.delta_time) # redraw new scene
+            self.level_manager.loop(event, key_pressed, self.delta_time)
 
             pygame.display.flip()
 

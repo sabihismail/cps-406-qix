@@ -1,7 +1,6 @@
 import pygame
 from base.entity import Entity, Direction
 from util.constants import BACKGROUND_ID
-from .background import OUTLINE_COLOUR as BACKGROUND_COLOUR
 
 WIDTH = 20.0
 HEIGHT = WIDTH
@@ -52,7 +51,7 @@ class Player(Entity):
         self.surface.fill(COLOUR, self.bounds)
 
     def valid_pos(self, new_pos_x, new_pos_y, old_pos_x, old_pos_y):
-        pos_to_save = self.background.leaves_play_area(new_pos_x, new_pos_y, old_pos_x, old_pos_y)
+        pos_to_save = self.background.leaves_play_area(new_pos_x, new_pos_y)#, old_pos_x, old_pos_y)
 
         return pos_to_save
 
@@ -66,3 +65,9 @@ class Player(Entity):
             self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
 
             self.background.add_trail(self.pos_x, self.pos_y, direction)
+
+    def handle_qix_damage(self):
+        pass
+
+    def handle_sparc_damage(self):
+        pass

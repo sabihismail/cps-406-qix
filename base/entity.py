@@ -40,7 +40,15 @@ class Direction(Enum):
     DOWN = 3
 
     @staticmethod
-    def opposite(old, new):
+    def all_keys():
+        return [e for e in Direction]
+
+    @staticmethod
+    def is_opposite(old, new):
+        return Direction.opposite(new) == old
+
+    @staticmethod
+    def opposite(val):
         d = {
             Direction.LEFT: Direction.RIGHT,
             Direction.RIGHT: Direction.LEFT,
@@ -48,4 +56,4 @@ class Direction(Enum):
             Direction.DOWN: Direction.UP
         }
 
-        return d[new] == old
+        return d[val]

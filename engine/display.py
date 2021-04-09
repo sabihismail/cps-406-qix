@@ -6,6 +6,7 @@ class Display():
         self.surface = surface
         self.entities: [Entity] = []
         self.entity_dict = {}
+        self.dynamic_entity_dict = {}
 
     def clear(self):
         self.surface.fill((0, 0, 0))
@@ -26,7 +27,7 @@ class Display():
     def sort_entities(self, lst):
         lst.sort(key=lambda x: x.heirarchy)
 
-    def add_entity(self, *entities):
+    def add_entity(self, *entities, dynamic=True):
         lst = list(entities)
 
         self.sort_entities(lst)
@@ -39,5 +40,14 @@ class Display():
             self.entities.append(entity)
             self.entity_dict[entity.unique_id] = entity
 
+            if dynamic:
+                dynamic_entities = self.dynamic_entity_dict.get(entity.unique_id, [])
+                dynamic_entities.append(entity)
+
+                self.dynamic_entity_dict[entity.unique_id] = dynamic_entities
+
     def get_entity(self, identifier):
         return self.entity_dict[identifier]
+
+    def get_dynamic_entities(self, identifier):
+        return self.dynamic_entity_dict[identifier]

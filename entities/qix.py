@@ -15,15 +15,18 @@ MOVE_RANDOMIZER = 100
 MIN_ACCELERATION = 0.5
 
 class Qix(Entity):
-    def __init__(self, unique_id):
+    def __init__(self, unique_id, speed=0.0, move_chance=0.0):
         super().__init__(unique_id, width=WIDTH, height=HEIGHT, pos_x=0.0, pos_y=0.0)
+        self.speed = speed
+        self.move_chance = move_chance
+
         self.background = None
         self.player = None
         self.display = None
         self.pos_x = 0.0
         self.pos_y = 0.0
 
-        self.ellipse_surface = pygame.Surface((WIDTH, WIDTH), pygame.SRCALPHA)
+        self.ellipse_surface = pygame.Surface((max(WIDTH, HEIGHT), max(WIDTH, HEIGHT)), pygame.SRCALPHA)
         self.angle = 0
 
         self.moving = False
@@ -44,9 +47,7 @@ class Qix(Entity):
         self.pos_y = self.background.pos_y + self.background.bounds.height - max(WIDTH, HEIGHT) / 2
 
     def pre_draw(self, delta_time):
-        self.angle += ANGLE_ROTATE_MULTIPLIER * delta_time
-        if self.angle >= 360:
-            self.angle -= 360
+        self.angle += (ANGLE_ROTATE_MULTIPLIER * delta_time) % 360
 
         self.move(delta_time)
         self.check_player_collision()
@@ -58,7 +59,7 @@ class Qix(Entity):
         player_bounds = pygame.Rect(self.player.bounds)
 
         if ellipse_rect.colliderect(player_bounds):
-            print("collide")
+            self.player.handle_qix_damage()
 
     def draw(self):
         pos = (self.pos_x, self.pos_y)
@@ -67,12 +68,12 @@ class Qix(Entity):
         rotate_surface(self.surface, self.ellipse_surface, pos, origin_pos, self.angle)
 
     def move(self, delta_time):
-        if not self.moving and randint(0, MOVE_RANDOMIZER) == 0:
-            random_points = random_points_from_polygon(self.background.active_trail_polygon, 
+        if not self.moving and randint(0, (MOVE_RANDOMIZER - self.move_chance)) == 0:
+            random_points = random_points_from_polygon(self.background.active_trail_polygon,
                 boundary=(max(WIDTH, HEIGHT), max(WIDTH, HEIGHT)),
                 min_distance=(self.background.bounds.width / 2) * (1 - self.background.percentage),
                 distance_from=(self.pos_x, self.pos_y))
-                
+
             self.next_pos = random_points[0]
             self.move_line = LineString([(self.pos_x, self.pos_y), self.next_pos])
             self.current_line = LineString([(self.pos_x, self.pos_y), self.next_pos])
@@ -80,7 +81,7 @@ class Qix(Entity):
             self.total_move = 0
 
         if self.moving:
-            distance_to_move = MOVE_OFFSET * self.acceleration * delta_time
+            distance_to_move = (MOVE_OFFSET + self.speed) * self.acceleration * delta_time
             move = distance_to_move / self.move_line.length
             self.total_move += move
 
