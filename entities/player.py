@@ -1,6 +1,8 @@
 import pygame
+import time
 from base.entity import Entity, Direction
 from util.constants import BACKGROUND_ID
+from entities.background import Background
 
 WIDTH = 20.0
 HEIGHT = WIDTH
@@ -16,6 +18,10 @@ class Player(Entity):
         self.bounds = None
         self.background = None
         self.display = None
+        self.lives = 3
+        self.font = pygame.font.SysFont('Arial',30)
+        self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
+        self.invuln = 0
         self.blocked = {
             Direction.LEFT: None,
             Direction.UP: None,
@@ -32,6 +38,9 @@ class Player(Entity):
         self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
 
     def handle_event(self, _, key_pressed):
+        print(self.lives, self.invuln)
+        if self.invuln > 0:
+            self.invuln -= 1
         if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_a]:
             self.move(Direction.LEFT)
         elif key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d]:
@@ -67,7 +76,14 @@ class Player(Entity):
             self.background.add_trail(self.pos_x, self.pos_y, direction)
 
     def handle_qix_damage(self):
-        pass
+        if not self.invuln > 0:
+            self.lives -= 1
+            self.invuln = 200
+            self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
 
     def handle_sparc_damage(self):
-        pass
+        if not self.invuln > 0:
+            self.lives -= 1
+            self.invuln = 200
+            self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
+            

@@ -1,3 +1,4 @@
+import pygame
 from entities.player import Player
 from entities.background import Background
 from entities.qix import Qix
@@ -11,9 +12,10 @@ QIX_MOVE_CHANCE = 2
 SPARC_SPEED_INTERVAL = 5.0
 
 class LevelManager():
-    def __init__(self, surface):
-        self.level = 1
+    def __init__(self, surface, levels):
+        self.level = levels
         self.surface = surface
+        self.complete = False
 
         self.background = None
         self.player = None
@@ -40,6 +42,8 @@ class LevelManager():
         self.display.clear()
         self.display.draw(delta_time)
 
+        self.check_lives()
+
         self.check_level_complete()
 
     def spawn_qix(self):
@@ -59,5 +63,12 @@ class LevelManager():
             self.sparcs.append(sparc)
 
     def check_level_complete(self):
-        if self.background.percentage <= PERCENTAGE_THRESHOLD:
-            return
+        if self.background.percentage*100 >= PERCENTAGE_THRESHOLD:
+            self.complete = True
+            self.player.lives = 0
+
+    def check_lives(self):
+        self.surface.blit(self.player.livesd, (200,100))
+        a = pygame.font.SysFont('Arial',30)
+        b = a.render('Level: ' + str(self.level), False, (255, 255, 255))
+        self.surface.blit(b, (500,100))

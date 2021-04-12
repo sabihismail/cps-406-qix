@@ -30,6 +30,8 @@ class Background(Entity):
         self.current_trail_end = None
         self.temp_trail = []
 
+        self.font = pygame.font.SysFont('Arial',30)
+
     def late_init(self):
         display_width, display_height = self.surface.get_size()
 
@@ -71,32 +73,6 @@ class Background(Entity):
     def leaves_play_area(self, x, y):
         ret_x = x
         ret_y = y
-        '''pointer = Point(x,y)
-
-        for line in to_line_list(self.active_trail):
-            if is_point_on_line(line[0], line[1], (trunc(x2), trunc(y2))):
-                if line[0][0] == line[1][0]:
-                    bruh = max(line[0][1],line[1][1])
-                    brah = min(line[0][1],line[1][1])
-                    if x < line[0][0] and not pointer.intersects(self.active_trail_polygon):
-                        ret_x = line[0][0]
-                    if x > line[0][0] and not pointer.intersects(self.active_trail_polygon):
-                        ret_x = line[0][0]
-                    if y < brah and not pointer.intersects(self.active_trail_polygon):
-                        ret_y = brah
-                    if y > bruh and not pointer.intersects(self.active_trail_polygon):
-                        ret_y = bruh
-                if line[0][1] == line[1][1]:
-                    bruh = max(line[0][0],line[1][0])
-                    brah = min(line[0][0],line[1][0])
-                    if y < line[0][1] and not pointer.intersects(self.active_trail_polygon):
-                        ret_y = line[0][1]
-                    if y > line[0][1] and not pointer.intersects(self.active_trail_polygon):
-                        ret_y = line[0][1]
-                    if x < brah and not pointer.intersects(self.active_trail_polygon):
-                        ret_x = brah
-                    if x > bruh and not pointer.intersects(self.active_trail_polygon):
-                        ret_x = bruh'''
 
         pointer = Point(x, y)
         if not point_in_polygon(self.active_trail_polygon, pointer):
@@ -115,7 +91,8 @@ class Background(Entity):
             point = nearest_point_to_polygon(self.active_trail_polygon, pointer)
 
             ret_x, ret_y = point[0], point[1]
-        
+        else:
+            ret_x, ret_y = x, y
         return (ret_x, ret_y)
 
     def line_on_perimeter(self, start, end):
@@ -213,3 +190,4 @@ class Background(Entity):
             self.current_trail_start = None
             self.current_trail_end = None
             self.last_trail_direction = None
+            
