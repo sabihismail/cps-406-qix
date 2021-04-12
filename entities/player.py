@@ -38,7 +38,6 @@ class Player(Entity):
         self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
 
     def handle_event(self, _, key_pressed):
-        print(self.lives, self.invuln)
         if self.invuln > 0:
             self.invuln -= 1
         if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_a]:
