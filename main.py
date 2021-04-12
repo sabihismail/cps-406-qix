@@ -13,29 +13,34 @@ class Main():
 
         self.surface = None
         self.level_manager = None
+        self.levels = 1
 
     def start(self):
         pygame.init()
-
-        self.surface = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
-        self.level_manager = LevelManager(self.surface)
-
-        self.clock.tick(self.fps)
         while True:
-            event = pygame.event.poll()
+            self.surface = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
+            self.level_manager = LevelManager(self.surface,self.levels)
 
-            if event.type == pygame.QUIT:
-                break
+            self.clock.tick(self.fps)
+            while self.level_manager.player.lives > 0:
+                event = pygame.event.poll()
 
-            key_pressed = pygame.key.get_pressed()
+                if event.type == pygame.QUIT:
+                    pygame.quit()
 
-            self.level_manager.loop(event, key_pressed, self.delta_time)
+                key_pressed = pygame.key.get_pressed()
 
-            pygame.display.flip()
+                self.level_manager.loop(event, key_pressed, self.delta_time)
 
-            self.delta_time = self.clock.tick(self.fps) / 1000.0
+                pygame.display.flip()
 
-        pygame.quit()
+                self.delta_time = self.clock.tick(self.fps) / 1000.0
+            if (self.level_manager.complete == True):
+                self.levels += 1
+            else:
+                self.levels = 1
+                pygame.time.delay(1000)
+
 
 if __name__ == '__main__':
     m = Main()
