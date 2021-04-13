@@ -61,6 +61,13 @@ class Qix(Entity):
         if ellipse_rect.colliderect(player_bounds):
             self.player.handle_qix_damage()
 
+        elif (self.background.current_trail_end != None):
+            actualtemptrail = [(self.background.current_trail_start,self.background.current_trail_end)] + self.background.temp_trail
+            for elem in actualtemptrail:
+                if (ellipse_rect.clipline(elem)!= ()):
+                    self.player.handle_qix_damage()
+                    break
+
     def draw(self):
         pos = (self.pos_x, self.pos_y)
         origin_pos = (WIDTH / 2, HEIGHT / 2)
