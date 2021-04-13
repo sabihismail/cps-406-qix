@@ -1,8 +1,9 @@
 import pygame
-import time
+from shapely.geometry import LineString
 from base.entity import Entity, Direction
 from util.constants import BACKGROUND_ID
 from entities.background import Background
+from util.draw_util import to_vertices_list
 
 WIDTH = 20.0
 HEIGHT = WIDTH
@@ -54,6 +55,20 @@ class Player(Entity):
         self.blocked[Direction.LEFT] = self.valid_pos(self.pos_x - (MOVE_OFFSET_X * delta_time), self.pos_y, self.pos_x, self.pos_y)
         self.blocked[Direction.UP] = self.valid_pos(self.pos_x, self.pos_y - (MOVE_OFFSET_Y * delta_time), self.pos_x, self.pos_y)
         self.blocked[Direction.DOWN] = self.valid_pos(self.pos_x, self.pos_y + (MOVE_OFFSET_Y * delta_time), self.pos_x, self.pos_y)
+        if (len(self.background.temp_trail) >= 1):
+            actualtemptrail = to_vertices_list(self.background.temp_trail + [(self.background.current_trail_start,self.background.current_trail_end)])
+            if (not LineString(actualtemptrail).is_simple):
+                self.lives -= 1
+                self.invuln = 200
+                self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
+                self.pos_x = self.background.temp_trail[0][0][0]
+                self.pos_y = self.background.temp_trail[0][0][1]
+                self.background.off_perimeter = False
+                self.background.current_trail_start = (self.pos_x, self.pos_y)
+                self.background.current_trail_end = None
+                self.background.last_trail_direction = None
+                self.background.temp_trail = []
+                self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
 
     def draw(self):
         self.surface.fill(COLOUR, self.bounds)
