@@ -105,6 +105,12 @@ class Sparc(Entity):
 
                 self.current_direction = direction
             except:
+                print('sparc bug')
+                print(pos)
+                print(all_directions)
+                print(self.active_trail_polygon)
+                print(self.current_direction)
+                print(bounds_check)
                 pass
 
             self.pos_x = new_pos[0]
