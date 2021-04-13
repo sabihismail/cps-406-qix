@@ -99,9 +99,14 @@ class Sparc(Entity):
 
                 all_directions.append(key)
             
-            direction = all_directions[randint(0, len(all_directions) - 1)]
+            try:
+                i = randint(0, len(all_directions) - 1)
+                direction = all_directions[i]
 
-            self.current_direction = direction
+                self.current_direction = direction
+            except:
+                pass
+
             self.pos_x = new_pos[0]
             self.pos_y = new_pos[1]
         else:
