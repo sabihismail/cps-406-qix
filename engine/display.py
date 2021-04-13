@@ -13,10 +13,11 @@ class Display():
 
     def draw(self, delta_time):
         self.sort_entities(self.entities)
-
         for entity in self.entities:
             entity.pre_draw(delta_time)
             entity.draw()
+        self.entities[1].pre_draw(delta_time)
+        self.entities[1].draw()
 
     def handle_event(self, event, key_pressed):
         self.sort_entities(self.entities)

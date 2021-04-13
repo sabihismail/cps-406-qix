@@ -79,6 +79,24 @@ class Player(Entity):
             self.lives -= 1
             self.invuln = 200
             self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
+            if (len(self.background.temp_trail) < 1):
+                self.pos_x = self.background.current_trail_start[0]
+                self.pos_y = self.background.current_trail_start[1]
+                self.background.off_perimeter = False
+                self.background.current_trail_start = (self.pos_x, self.pos_y)
+                self.background.current_trail_end = None
+                self.background.last_trail_direction = None
+                self.background.temp_trail = []
+                self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
+            if (len(self.background.temp_trail) >= 1):
+                self.pos_x = self.background.temp_trail[0][0][0]
+                self.pos_y = self.background.temp_trail[0][0][1]
+                self.background.off_perimeter = False
+                self.background.current_trail_start = (self.pos_x, self.pos_y)
+                self.background.current_trail_end = None
+                self.background.last_trail_direction = None
+                self.background.temp_trail = []
+                self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
 
     def handle_sparc_damage(self):
         if not self.invuln > 0:
@@ -86,3 +104,27 @@ class Player(Entity):
             self.invuln = 200
             self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
             
+    def handle_sparc_damage_alt(self):
+        if not self.invuln > 0:
+            self.lives -= 1
+            self.invuln = 200
+            self.livesd = self.font.render('Lives: ' + str(self.lives), False, (255, 255, 255))
+            if (len(self.background.temp_trail) < 1):
+                self.pos_x = self.background.current_trail_start[0]
+                self.pos_y = self.background.current_trail_start[1]
+                self.background.off_perimeter = False
+                self.background.current_trail_start = (self.pos_x, self.pos_y)
+                self.background.current_trail_end = None
+                self.background.last_trail_direction = None
+                self.background.temp_trail = []
+                self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
+            if (len(self.background.temp_trail) >= 1):
+                self.pos_x = self.background.temp_trail[0][0][0]
+                self.pos_y = self.background.temp_trail[0][0][1]
+                self.background.off_perimeter = False
+                self.background.current_trail_start = (self.pos_x, self.pos_y)
+                self.background.current_trail_end = None
+                self.background.last_trail_direction = None
+                self.background.temp_trail = []
+                self.bounds = (self.pos_x - WIDTH / 2, self.pos_y - HEIGHT / 2, WIDTH, HEIGHT)
+        

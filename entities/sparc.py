@@ -128,6 +128,15 @@ class Sparc(Entity):
 
         if rect.colliderect(player_bounds):
             self.player.handle_sparc_damage()
+            
+        elif (len(self.background.temp_trail) < 1) and (self.background.current_trail_start != None):
+            if rect.collidepoint(self.background.current_trail_start):
+                self.player.handle_sparc_damage_alt()
+                
+        elif (len(self.background.temp_trail) >= 1):
+            if rect.collidepoint(self.background.temp_trail[0][0]):
+                self.player.handle_sparc_damage_alt()
+
 
     def draw(self):
         pos = (self.pos_x, self.pos_y)
